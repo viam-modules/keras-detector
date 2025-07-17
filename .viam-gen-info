@@ -1,0 +1,13 @@
+{
+  "module_name": "keras-detector",
+  "namespace": "viam",
+  "language": "python",
+  "resource_type": "service",
+  "resource_subtype": "vision",
+  "model_name": "keras-detector",
+  "enable_cloud_build": true,
+  "initialize_git": false,
+  "generator_version": "0.1.0",
+  "generated_on": "2025-07-15T13:58:22.692291Z",
+  "module_readme_link": "README.md"
+}
