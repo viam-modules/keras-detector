@@ -1,4 +1,5 @@
-keras
+tensorflow>=2.18.0
+keras==3.7.0
 viam-sdk==0.50.0
 typing-extensions
 

@@ -3,10 +3,10 @@ from viam.services.vision import Vision
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
 try:
-    from models.keras_detector import KerasDetector
+    from src.keras_detector import KerasDetector
 except ModuleNotFoundError:
     # when running as local module with run.sh
-    from .models.keras_detector import KerasDetector
+    from .keras_detector import KerasDetector
 
 
 async def main():
