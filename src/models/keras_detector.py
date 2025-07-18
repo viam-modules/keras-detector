@@ -1,20 +1,17 @@
-import keras
 import os
-import sys
-from typing import ClassVar, Final, List, Mapping, Optional, Sequence, Tuple
+from typing import ClassVar, List, Mapping, Optional, Sequence, Tuple
 
+import keras
 from typing_extensions import Self
 from viam.media.video import ViamImage
 from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import PointCloudObject, ResourceName
 from viam.components.camera import Camera
-#from viam.proto.component.camera import Camera
-from viam.proto.service.vision import (Classification, Detection,
-                                       GetPropertiesResponse)
+from viam.proto.service.vision import Classification, Detection
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
 from viam.resource.types import Model, ModelFamily
-from viam.services.vision import *
+from viam.services.vision import Vision, CaptureAllResult
 from viam.utils import ValueTypes
 
 
@@ -22,7 +19,7 @@ class KerasDetector(Vision, EasyResource):
     # To enable debug-level logging, either run viam-server with the --debug option,
     # or configure your resource/machine to display debug logs.
     MODEL: ClassVar[Model] = Model(
-        ModelFamily("viam", "keras-detector"), "keras-detector"
+        ModelFamily("viam", "vision"), "keras-detector"
     )
 
     @classmethod
@@ -64,12 +61,11 @@ class KerasDetector(Vision, EasyResource):
         _, ext = os.path.splitext(model_path)
         if ext != ".keras":
             raise ValueError(model_path_err)
-        
+
         camera_name = config.attributes.fields["camera_name"].string_value
         if camera_name is None or camera_name == "":
             raise ValueError("camera_name must be a non-empty string")
-        
-        
+
         return [camera_name], []
 
     def reconfigure(
@@ -86,11 +82,7 @@ class KerasDetector(Vision, EasyResource):
         self.model = keras.models.load_model(self.model_path)
 
         self.camera_name = config.attributes.fields["camera_name"].string_value
-        
-        self.camera = Camera.get_resource_name()
-        
-
-        
+        self.camera = Camera.get_resource_name(self.camera_name)
 
         return super().reconfigure(config, dependencies)
 
@@ -119,12 +111,11 @@ class KerasDetector(Vision, EasyResource):
         if camera_name != self.camera_name:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
         
-        self.camera
-
+        # This is not right lol needs to be the image but hold on
         out = self.model.predict(self.model_path)
         out_dets = []
 
-        for i, o in enumerate(out):
+        for _, o in enumerate(out):
             Detection(
                 x_min=round(o[0]),
                 y_min=round(o[1]),
@@ -133,8 +124,6 @@ class KerasDetector(Vision, EasyResource):
                 class_name="object",
                 confidence=0.5
             )
-            
-
         
         return out_dets
 
@@ -198,4 +187,3 @@ class KerasDetector(Vision, EasyResource):
     ) -> Mapping[str, ValueTypes]:
         self.logger.error("`do_command` is not implemented")
         raise NotImplementedError()
-
