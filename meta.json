@@ -1,0 +1,30 @@
+{
+  "$schema": "https://dl.viam.dev/module.schema.json",
+  "module_id": "viam:keras-detector",
+  "visibility": "public",
+  "url": "https://github.com/viam-modules/keras-detector/",
+  "description": "Modular vision service: keras-detector",
+  "models": [
+    {
+      "api": "rdk:service:vision",
+      "model": "viam:vision:keras-detector",
+      "short_description": "Provide a short (100 characters or less) description of this model here",
+      "markdown_link": "README.md#model-viamkeras-detectorkeras-detector"
+    }
+  ],
+  "applications": null,
+  "markdown_link": "README.md",
+  "entrypoint": "dist/main",
+  "first_run": "",
+  "build": {
+    "build": "make build",
+    "setup": "make setup",
+    "path": "dist/archive.tar.gz",
+    "arch": [
+      "linux/amd64",
+      "linux/arm64",
+      "darwin/arm64",
+      "windows/amd64"
+    ]
+  }
+}
