@@ -93,6 +93,7 @@ class KerasDetector(Vision, EasyResource):
 
         self.camera_name = config.attributes.fields["camera_name"].string_value
         self.camera = dependencies[Camera.get_resource_name(self.camera_name)]
+        assert isinstance(self.camera, CameraClient)
 
         return super().reconfigure(config, dependencies)
 
@@ -135,7 +136,6 @@ class KerasDetector(Vision, EasyResource):
         if camera_name != self.camera_name:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
         
-        assert isinstance(self.camera, CameraClient)
         viam_img = await self.camera.get_image(CameraMimeType.JPEG)
         
         return self.get_detections(viam_img, extra=extra, timeout=timeout)
@@ -156,7 +156,7 @@ class KerasDetector(Vision, EasyResource):
         out = self.model.predict(img, verbose=0)
         out_dets = []
 
-        for _, o in enumerate(out):
+        for o in out:
             if len(o) < 4:
                 self.logger.warning("this doesn't seem like a valid detection, skipping")
                 continue
@@ -214,7 +214,6 @@ class KerasDetector(Vision, EasyResource):
         extra: Optional[Mapping[str, ValueTypes]] = None,
         timeout: Optional[float] = None
     ) -> Vision.Properties:
-        
         out = Vision.Properties(
             detections_supported=True,
             classifications_supported=False,
