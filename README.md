@@ -1,18 +1,16 @@
 # Module keras-detector 
 
-Provide a description of the purpose of the module and any relevant information.
+Viam provides a `keras-detector` model of the [vision service](/services/vision) with which you can use to interface with detectors made with Keras.
 
-## Model viam:vision:keras-detector
 
-Provide a description of the model and any relevant information.
 
 ### Configuration
 The following attribute template can be used to configure this model:
 
 ```json
 {
-"attribute_1": <float>,
-"attribute_2": <string>
+"model_path": <string>,
+"camera_name": <string>
 }
 ```
 
@@ -22,29 +20,16 @@ The following attributes are available for this model:
 
 | Name          | Type   | Inclusion | Description                |
 |---------------|--------|-----------|----------------------------|
-| `attribute_1` | float  | Required  | Description of attribute 1 |
-| `attribute_2` | string | Optional  | Description of attribute 2 |
+| `model_path`  | string | Required  | The filepath to your Keras detector file.  Should end with '.keras' |
+| `camera_name` | string | Required  | The name of the camera configured on your robot. |
 
 #### Example Configuration
 
 ```json
 {
-  "attribute_1": 1.0,
-  "attribute_2": "foo"
+  "model_path": "/Users/ViamUser/models/myDetector.keras",
+  "camera_name": "camera-1"
 }
 ```
 
-### DoCommand
 
-If your model implements DoCommand, provide an example payload of each command that is supported and the arguments that can be used. If your model does not implement DoCommand, remove this section.
-
-#### Example DoCommand
-
-```json
-{
-  "command_name": {
-    "arg1": "foo",
-    "arg2": 1
-  }
-}
-```
