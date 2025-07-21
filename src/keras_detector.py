@@ -2,6 +2,7 @@ import os
 from typing import ClassVar, List, Mapping, Optional, Sequence, Tuple
 
 import keras
+import numpy as np
 import tensorflow as tf
 from typing_extensions import Self
 from viam.logging import getLogger
@@ -43,6 +44,7 @@ class KerasDetector(Vision, EasyResource):
         """
         return super().new(config, dependencies)
 
+
     @classmethod
     def validate_config(
         cls, config: ComponentConfig
@@ -73,6 +75,7 @@ class KerasDetector(Vision, EasyResource):
 
         return [camera_name], []
 
+
     def reconfigure(
         self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ):
@@ -92,6 +95,7 @@ class KerasDetector(Vision, EasyResource):
         self.camera = dependencies[Camera.get_resource_name(self.camera_name)]
 
         return super().reconfigure(config, dependencies)
+
 
     async def capture_all_from_camera(
         self,
@@ -148,28 +152,26 @@ class KerasDetector(Vision, EasyResource):
         pil_img = viam_to_pil_image(image)
         img = self.prep_image(pil_img)
 
-        # This is not right lol needs to be the image but hold on
-        out = self.model.predict(img)
+        # Send the image thru the model
+        out = self.model.predict(img, verbose=0)
         out_dets = []
 
         for _, o in enumerate(out):
             if len(o) < 4:
                 self.logger.warning("this doesn't seem like a valid detection, skipping")
                 continue
-            Detection(
-                x_min=round(o[0]),
-                y_min=round(o[1]),
-                x_max=round(o[2]),
-                y_max=round(o[3]),
+            det = Detection(
+                x_min=min(round(o[0]), round(o[2])),  
+                y_min=min(round(o[1]), round(o[3])),  
+                x_max=max(round(o[0]), round(o[2])),  
+                y_max=max(round(o[1]), round(o[3])),  
                 class_name="object",
                 confidence=0.5
             )
+            out_dets.append(det)
         
         return out_dets
 
-
-        self.logger.error("`get_detections` is not implemented")
-        raise NotImplementedError()
 
     async def get_classifications_from_camera(
         self,
@@ -182,6 +184,7 @@ class KerasDetector(Vision, EasyResource):
         self.logger.error("`get_classifications_from_camera` is not implemented")
         raise NotImplementedError()
 
+
     async def get_classifications(
         self,
         image: ViamImage,
@@ -193,6 +196,7 @@ class KerasDetector(Vision, EasyResource):
         self.logger.error("`get_classifications` is not implemented")
         raise NotImplementedError()
 
+
     async def get_object_point_clouds(
         self,
         camera_name: str,
@@ -203,14 +207,21 @@ class KerasDetector(Vision, EasyResource):
         self.logger.error("`get_object_point_clouds` is not implemented")
         raise NotImplementedError()
 
+
     async def get_properties(
         self,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
         timeout: Optional[float] = None
     ) -> Vision.Properties:
-        self.logger.error("`get_properties` is not implemented")
-        raise NotImplementedError()
+        
+        out = Vision.Properties(
+            detections_supported=True,
+            classifications_supported=False,
+            object_point_clouds_supported=False
+        )
+        return out
+
 
     async def do_command(
         self,
@@ -222,10 +233,11 @@ class KerasDetector(Vision, EasyResource):
         self.logger.error("`do_command` is not implemented")
         raise NotImplementedError()
     
-    # This returns the image as a numpy with the batch dimension in front.
-    def prep_image(input_image):
+
+    # prep_image returns the image as a numpy with the batch dimension in front.
+    def prep_image(self, input_image, target_size=(320, 180, 3)):
         image = keras.utils.img_to_array(input_image)
+        image = np.resize(image, target_size)
         image = tf.image.convert_image_dtype(image, dtype=tf.float32)
         image = tf.expand_dims(image, axis=0)  
         return image
-

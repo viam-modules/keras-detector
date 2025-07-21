@@ -6,8 +6,7 @@ from viam.errors import DuplicateResourceError
 try:
     from src.keras_detector import KerasDetector
 except ModuleNotFoundError:
-    # when running as local module with run.sh
-    from .keras_detector import KerasDetector
+    from keras_detector import KerasDetector
 
 
 async def main():
@@ -31,6 +30,5 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except DuplicateResourceError:
-        print("Duplicate resource error encountered. Restarting module...")
         asyncio.run(Module.run_from_registry())
     
