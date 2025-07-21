@@ -2,8 +2,6 @@
 
 Viam provides a `keras-detector` model of the [vision service](/services/vision) with which you can use to interface with detectors made with Keras.
 
-
-
 ### Configuration
 The following attribute template can be used to configure this model:
 
