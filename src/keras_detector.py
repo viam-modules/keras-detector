@@ -104,9 +104,22 @@ class KerasDetector(Vision, EasyResource):
         extra: Optional[Mapping[str, ValueTypes]] = None,
         timeout: Optional[float] = None
     ) -> CaptureAllResult:
-        self.logger.error("`capture_all_from_camera` is not implemented")
-        raise NotImplementedError()
+        
+        out = CaptureAllResult()
 
+        if camera_name not in [self.camera_name, ""]:
+            raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
+        img = await self.camera.get_image(CameraMimeType.JPEG)
+
+        if return_image:
+            out.image = img
+        if return_detections:
+            out.detections = await self.get_detections(img, extra=extra, timeout=timeout)
+        # No classifications
+        # No object point clouds
+        return out
+        
+ 
     async def get_detections_from_camera(
         self,
         camera_name: str,
