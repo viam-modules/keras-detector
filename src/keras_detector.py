@@ -2,17 +2,22 @@ import os
 from typing import ClassVar, List, Mapping, Optional, Sequence, Tuple
 
 import keras
+import tensorflow as tf
 from typing_extensions import Self
-from viam.media.video import ViamImage
+from viam.logging import getLogger
+from viam.media.video import ViamImage, CameraMimeType
+from viam.media.utils.pil import viam_to_pil_image
 from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import PointCloudObject, ResourceName
 from viam.components.camera import Camera
+from viam.components.camera.client import CameraClient
 from viam.proto.service.vision import Classification, Detection
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
 from viam.resource.types import Model, ModelFamily
 from viam.services.vision import Vision, CaptureAllResult
 from viam.utils import ValueTypes
+
 
 
 class KerasDetector(Vision, EasyResource):
@@ -78,11 +83,13 @@ class KerasDetector(Vision, EasyResource):
             dependencies (Mapping[ResourceName, ResourceBase]): Any dependencies (both required and optional)
         """
 
+        self.logger = getLogger("keras_detector")
+
         self.model_path = config.attributes.fields["model_path"].string_value
         self.model = keras.models.load_model(self.model_path)
 
         self.camera_name = config.attributes.fields["camera_name"].string_value
-        self.camera = Camera.get_resource_name(self.camera_name)
+        self.camera = dependencies[Camera.get_resource_name(self.camera_name)]
 
         return super().reconfigure(config, dependencies)
 
@@ -111,11 +118,31 @@ class KerasDetector(Vision, EasyResource):
         if camera_name != self.camera_name:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
         
+        assert isinstance(self.camera, CameraClient)
+        viam_img = await self.camera.get_image(CameraMimeType.JPEG)
+        
+        return self.get_detections(viam_img, extra=extra, timeout=timeout)
+        
+
+    async def get_detections(
+        self,
+        image: ViamImage,
+        *,
+        extra: Optional[Mapping[str, ValueTypes]] = None,
+        timeout: Optional[float] = None
+    ) -> List[Detection]:
+        
+        pil_img = viam_to_pil_image(image)
+        img = self.prep_image(pil_img)
+
         # This is not right lol needs to be the image but hold on
-        out = self.model.predict(self.model_path)
+        out = self.model.predict(img)
         out_dets = []
 
         for _, o in enumerate(out):
+            if len(o) < 4:
+                self.logger.warning("this doesn't seem like a valid detection, skipping")
+                continue
             Detection(
                 x_min=round(o[0]),
                 y_min=round(o[1]),
@@ -127,13 +154,7 @@ class KerasDetector(Vision, EasyResource):
         
         return out_dets
 
-    async def get_detections(
-        self,
-        image: ViamImage,
-        *,
-        extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
-    ) -> List[Detection]:
+
         self.logger.error("`get_detections` is not implemented")
         raise NotImplementedError()
 
@@ -187,3 +208,11 @@ class KerasDetector(Vision, EasyResource):
     ) -> Mapping[str, ValueTypes]:
         self.logger.error("`do_command` is not implemented")
         raise NotImplementedError()
+    
+    # This returns the image as a numpy with the batch dimension in front.
+    def prep_image(input_image):
+        image = keras.utils.img_to_array(input_image)
+        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+        image = tf.expand_dims(image, axis=0)  
+        return image
+
