@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# On a Windows machine, open a Git Bash terminal and run this
+# script with a bash command.  Run this script before the build one.
+
 cd `dirname $0`
 
 # Create a virtual environment to run our code
