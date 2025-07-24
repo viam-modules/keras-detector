@@ -8,8 +8,8 @@
     {
       "api": "rdk:service:vision",
       "model": "viam:vision:keras-detector",
-      "short_description": "Provide a short (100 characters or less) description of this model here",
-      "markdown_link": "README.md#model-viamkeras-detectorkeras-detector"
+      "short_description": "A Viam vision service that uses Keras for object detection",
+      "markdown_link": "README.md#example-configuration"
     }
   ],
   "applications": null,
@@ -23,8 +23,7 @@
     "arch": [
       "linux/amd64",
       "linux/arm64",
-      "darwin/arm64",
-      "windows/amd64"
+      "darwin/arm64"
     ]
   }
 }
