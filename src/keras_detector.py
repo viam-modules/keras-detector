@@ -11,7 +11,6 @@ from viam.media.utils.pil import viam_to_pil_image
 from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import PointCloudObject, ResourceName
 from viam.components.camera import Camera
-from viam.components.camera.client import CameraClient
 from viam.proto.service.vision import Classification, Detection
 from viam.resource.base import ResourceBase
 from viam.resource.easy_resource import EasyResource
