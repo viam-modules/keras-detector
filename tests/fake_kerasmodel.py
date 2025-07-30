@@ -7,4 +7,3 @@ class FakeKerasModel():
     def predict(self, np_array, verbose: int = 0):
         # Simulate a prediction output
         return [[10, 20, 30, 40]] 
-
