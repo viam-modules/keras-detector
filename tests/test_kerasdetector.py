@@ -17,7 +17,6 @@ CAMERA_ERR = "camera_name must be a non-empty string"
 FAKE_CAM_NAME = "test_camera"
 FAKE_MODEL_NAME = "test_model"
 
-
 # Helper functions for testing
 def make_component_config(dictionary: Mapping[str, Any]) -> ComponentConfig:
     struct = Struct()

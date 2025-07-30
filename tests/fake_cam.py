@@ -7,8 +7,10 @@ from viam.proto.common import ResponseMetadata
 from PIL import Image
 
 
+
 # FakeCamera is a mock implementation of the Camera component for testing purposes.
 # It returns a 640 x 480 image which is notably different from the expected Keras input size (320x180)
+
 class FakeCamera(Camera):
 
     def __init__(self, name: str):
