@@ -7,3 +7,7 @@ jobs:
     steps:
     - name: step
       run: echo hello
+    - name: setup
+      run: make setup
+    - name: build
+      run: make build
