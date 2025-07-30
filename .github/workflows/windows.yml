@@ -12,6 +12,10 @@ jobs:
       run: echo hello
     - name: checkout
       uses: actions/checkout@v4
+    - name: Set up Python w/ Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.12
 
     - name: Install Viam CLI
       run: |        
