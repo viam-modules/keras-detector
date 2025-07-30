@@ -8,8 +8,6 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: step
-      run: echo hello
     - name: checkout
       uses: actions/checkout@v4
     - name: Set up Python w/ Python 3.12
