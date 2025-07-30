@@ -17,6 +17,7 @@ CAMERA_ERR = "camera_name must be a non-empty string"
 FAKE_CAM_NAME = "test_camera"
 FAKE_MODEL_NAME = "test_model"
 
+
 # Helper functions for testing
 def make_component_config(dictionary: Mapping[str, Any]) -> ComponentConfig:
     struct = Struct()
@@ -57,6 +58,7 @@ def test_not_keras_file():
 
 
 # Test Vision Service Methods
+
 @pytest.mark.asyncio
 async def test_get_properties():
     kd = getKD()
@@ -128,3 +130,4 @@ async def test_capture_all():
     assert isinstance(capture_result3.detections, List)
     assert len(capture_result3.detections) > 0
     assert isinstance(capture_result3.detections[0], Detection)
+

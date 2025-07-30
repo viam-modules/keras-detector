@@ -168,6 +168,7 @@ class KerasDetector(Vision, EasyResource):
             )
             out_dets.append(det)
         
+        print("detections:", out_dets)
         return out_dets
 
 
