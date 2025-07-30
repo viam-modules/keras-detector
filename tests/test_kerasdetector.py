@@ -57,7 +57,6 @@ def test_not_keras_file():
 
 
 # Test Vision Service Methods
-
 @pytest.mark.asyncio
 async def test_get_properties():
     kd = getKD()
