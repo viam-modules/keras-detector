@@ -51,7 +51,6 @@ def test_no_model_config():
 
 
 # Test Vision Service Methods
-
 @pytest.mark.asyncio
 async def test_get_properties():
     kd = getKD()
