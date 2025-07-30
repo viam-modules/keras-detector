@@ -93,7 +93,6 @@ class KerasDetector(Vision, EasyResource):
 
         self.camera_name = config.attributes.fields["camera_name"].string_value
         self.camera = dependencies[Camera.get_resource_name(self.camera_name)]
-        assert isinstance(self.camera, CameraClient)
 
         return super().reconfigure(config, dependencies)
 
@@ -170,6 +169,7 @@ class KerasDetector(Vision, EasyResource):
             )
             out_dets.append(det)
         
+        print("detections:", out_dets)
         return out_dets
 
 
