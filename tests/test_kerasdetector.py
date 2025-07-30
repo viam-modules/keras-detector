@@ -8,12 +8,14 @@ from viam.proto.app.robot import ComponentConfig
 from viam.services.vision import CaptureAllResult, Classification, Detection, Vision
 from viam.media.video import ViamImage
 
-from tests.fakecam import FakeCamera
+from tests.fake_cam import FakeCamera
+from tests.fake_kerasmodel import FakeKerasModel
 
 
 MODEL_PATH_ERR = "model_path must be a location (string) to a Keras model file ending in .keras"
 CAMERA_ERR = "camera_name must be a non-empty string"
 FAKE_CAM_NAME = "test_camera"
+FAKE_MODEL_NAME = "test_model"
 
 # Helper functions for testing
 def make_component_config(dictionary: Mapping[str, Any]) -> ComponentConfig:
@@ -64,15 +66,11 @@ async def test_get_properties():
 @pytest.mark.asyncio
 async def test_detections():
     kd = getKD()
-    config = make_component_config({
-        "model_path": "tests/testModel.keras",
-        "camera_name": FAKE_CAM_NAME
-    })
-    cam = FakeCamera(FAKE_CAM_NAME)
-    cam_name = cam.get_resource_name(FAKE_CAM_NAME)
-    kd.reconfigure(config=config, dependencies={cam_name: cam})
-
-    img = await cam.get_image()
+    kd.camera = FakeCamera(FAKE_CAM_NAME)
+    kd.camera_name = FAKE_CAM_NAME
+    kd.model = FakeKerasModel(FAKE_MODEL_NAME)
+  
+    img = await kd.camera.get_image()
     detections = await kd.get_detections(img)
     assert isinstance(detections, List)
     assert len(detections) > 0
@@ -87,14 +85,10 @@ async def test_detections():
 @pytest.mark.asyncio
 async def test_capture_all():
     kd = getKD()
-    config = make_component_config({
-        "model_path": "tests/testModel.keras",
-        "camera_name": FAKE_CAM_NAME
-    })
-    cam = FakeCamera(FAKE_CAM_NAME)
-    cam_name = cam.get_resource_name(FAKE_CAM_NAME)
-    kd.reconfigure(config=config, dependencies={cam_name: cam})
-    
+    kd.camera = FakeCamera(FAKE_CAM_NAME)
+    kd.camera_name = FAKE_CAM_NAME
+    kd.model = FakeKerasModel(FAKE_MODEL_NAME)
+
     capture_result = await kd.capture_all_from_camera(
         camera_name=FAKE_CAM_NAME,
         return_image=True,
