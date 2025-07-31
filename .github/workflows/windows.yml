@@ -1,9 +1,32 @@
 on:
+  release:
+    types: [published]
+
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: step
-      run: echo hello
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: Set up Python w/ Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.12
+
+    - name: Install Viam CLI
+      run: |        
+          curl -o viam.exe "https://storage.googleapis.com/packages.viam.com/apps/viam-cli/viam-cli-latest-windows-amd64.exe"
+          ./viam.exe version
+   
+    - name: setup
+      run: make setup
+    - name: build
+      run: make build
+    
+    - name: Publish build to Viam registry
+      if: ${{ github.event_name != 'workflow_dispatch' }}
+      run: |           
+          ./viam.exe login api-key --key-id ${{ secrets.viam_key_id }} --key ${{ secrets.viam_key_value }}
+          ./viam.exe module upload --platform windows/amd64 --version ${{ github.ref_name }} --upload dist/archive.tar.gz       

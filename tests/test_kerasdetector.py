@@ -128,3 +128,4 @@ async def test_capture_all():
     assert isinstance(capture_result3.detections, List)
     assert len(capture_result3.detections) > 0
     assert isinstance(capture_result3.detections[0], Detection)
+
