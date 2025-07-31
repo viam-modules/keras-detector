@@ -83,8 +83,8 @@ async def test_detections():
         assert isinstance(det, Detection)
         assert det.x_min == 10
         assert det.x_max == 30
-        assert det.y_min >= 20
-        assert det.y_max >= 40
+        assert det.y_min == 20
+        assert det.y_max == 40
         assert det.class_name == "object"
         assert det.confidence == 0.5
 
