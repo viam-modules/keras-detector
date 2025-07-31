@@ -49,6 +49,12 @@ def test_no_model_config():
     with pytest.raises(ValueError, match=re.escape(MODEL_PATH_ERR)):
         _, _= kd.validate_config(config)
 
+def test_not_keras_file():
+    kd = getKD()
+    config = make_component_config({"model_path": "BlahBlahModel.tflite", "camera_name": FAKE_CAM_NAME})
+    with pytest.raises(ValueError, match=re.escape(MODEL_PATH_ERR)):
+        _, _= kd.validate_config(config)
+
 
 # Test Vision Service Methods
 @pytest.mark.asyncio
@@ -75,10 +81,12 @@ async def test_detections():
     assert len(detections) > 0
     for det in detections:
         assert isinstance(det, Detection)
-        assert det.x_min >= 0
-        assert det.x_max >= det.x_min
-        assert det.y_min >= 0
-        assert det.y_max >= det.y_min
+        assert det.x_min == 10
+        assert det.x_max == 30
+        assert det.y_min >= 20
+        assert det.y_max >= 40
+        assert det.class_name == "object"
+        assert det.confidence == 0.5
 
 
 @pytest.mark.asyncio
@@ -99,4 +107,24 @@ async def test_capture_all():
     assert isinstance(capture_result.detections, List)
     assert len(capture_result.detections) > 0
     assert isinstance(capture_result.detections[0], Detection)
-    
+
+    capture_result2 = await kd.capture_all_from_camera(
+        camera_name=FAKE_CAM_NAME,
+        return_image=True,
+        return_detections=False
+    )
+    assert isinstance(capture_result2, CaptureAllResult)
+    assert capture_result2.image is not None
+    assert isinstance(capture_result2.image, ViamImage)
+    assert capture_result2.detections is None
+
+    capture_result3 = await kd.capture_all_from_camera(
+        camera_name=FAKE_CAM_NAME,
+        return_image=False,
+        return_detections=True
+    )
+    assert isinstance(capture_result3, CaptureAllResult)
+    assert capture_result3.image is None
+    assert isinstance(capture_result3.detections, List)
+    assert len(capture_result3.detections) > 0
+    assert isinstance(capture_result3.detections[0], Detection)
