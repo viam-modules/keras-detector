@@ -29,5 +29,3 @@ The following attributes are available for this model:
   "camera_name": "camera-1"
 }
 ```
-
-
