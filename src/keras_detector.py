@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 from typing_extensions import Self
 from viam.logging import getLogger
-from viam.media.video import ViamImage, CameraMimeType
+from viam.media.video import ViamImage
 from viam.media.utils.pil import viam_to_pil_image
 from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import PointCloudObject, ResourceName
