@@ -112,8 +112,8 @@ class KerasDetector(Vision, EasyResource):
 
         if camera_name not in [self.camera_name, ""]:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
-        imgs = await self.camera.get_images()
-        if len(imgs) == 0:
+        imgs, _ = await self.camera.get_images()
+        if imgs is None or len(imgs) == 0:
             raise ValueError("No images returned by get_images")
         img = imgs[0]
 
@@ -137,8 +137,8 @@ class KerasDetector(Vision, EasyResource):
         if camera_name != self.camera_name:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
         
-        viam_imgs = await self.camera.get_images()
-        if len(viam_imgs) == 0:
+        viam_imgs, _ = await self.camera.get_images()
+        if viam_imgs is None or len(viam_imgs) == 0:
             raise ValueError("No images returned by get_images")
         viam_img = viam_imgs[0]
 
