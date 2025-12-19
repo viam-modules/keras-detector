@@ -75,7 +75,8 @@ async def test_detections():
     kd.camera_name = FAKE_CAM_NAME
     kd.model = FakeKerasModel(FAKE_MODEL_NAME)
   
-    img = await kd.camera.get_image()
+    imgs, _ = await kd.camera.get_images()
+    img = imgs[0]
     detections = await kd.get_detections(img)
     assert isinstance(detections, List)
     assert len(detections) > 0

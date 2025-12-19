@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 from typing_extensions import Self
 from viam.logging import getLogger
-from viam.media.video import ViamImage, CameraMimeType
+from viam.media.video import ViamImage
 from viam.media.utils.pil import viam_to_pil_image
 from viam.proto.app.robot import ComponentConfig
 from viam.proto.common import PointCloudObject, ResourceName
@@ -112,7 +112,10 @@ class KerasDetector(Vision, EasyResource):
 
         if camera_name not in [self.camera_name, ""]:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
-        img = await self.camera.get_image(CameraMimeType.JPEG)
+        imgs, _ = await self.camera.get_images()
+        if imgs is None or len(imgs) == 0:
+            raise ValueError("No images returned by get_images")
+        img = imgs[0]
 
         if return_image:
             out.image = img
@@ -134,8 +137,11 @@ class KerasDetector(Vision, EasyResource):
         if camera_name != self.camera_name:
             raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
         
-        viam_img = await self.camera.get_image(CameraMimeType.JPEG)
-        
+        viam_imgs, _ = await self.camera.get_images()
+        if viam_imgs is None or len(viam_imgs) == 0:
+            raise ValueError("No images returned by get_images")
+        viam_img = viam_imgs[0]
+
         return self.get_detections(viam_img, extra=extra, timeout=timeout)
         
 
