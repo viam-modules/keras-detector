@@ -1,10 +1,11 @@
-from typing import Any, Coroutine, Final, List, Optional, Tuple, Dict
+from typing import Any, Coroutine, List, Tuple
+
+from PIL import Image
 from viam.components.camera import Camera
 from viam.gen.component.camera.v1.camera_pb2 import GetPropertiesResponse
-from viam.media.video import NamedImage, ViamImage, CameraMimeType
 from viam.media.utils import pil
+from viam.media.video import CameraMimeType, NamedImage, ViamImage
 from viam.proto.common import ResponseMetadata
-from PIL import Image
 
 
 # FakeCamera is a mock implementation of the Camera component for testing purposes.

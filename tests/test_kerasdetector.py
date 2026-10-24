@@ -1,16 +1,15 @@
-from google.protobuf.struct_pb2 import Struct
+import re
 from typing import Any, List, Mapping
 
 import pytest
-import re
-from src.keras_detector import KerasDetector
-from viam.proto.app.robot import ComponentConfig
-from viam.services.vision import CaptureAllResult, Classification, Detection, Vision
+from google.protobuf.struct_pb2 import Struct
 from viam.media.video import ViamImage
+from viam.proto.app.robot import ComponentConfig
+from viam.services.vision import CaptureAllResult, Detection, Vision
 
+from src.keras_detector import KerasDetector
 from tests.fake_cam import FakeCamera
 from tests.fake_kerasmodel import FakeKerasModel
-
 
 MODEL_PATH_ERR = (
     "model_path must be a location (string) to a Keras model file ending in .keras"

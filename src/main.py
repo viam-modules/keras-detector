@@ -1,8 +1,9 @@
 import asyncio
-from viam.services.vision import Vision
+
+from viam.errors import DuplicateResourceError
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
-from viam.errors import DuplicateResourceError
+from viam.services.vision import Vision
 
 try:
     from src.keras_detector import KerasDetector
