@@ -1,8 +1,10 @@
 import asyncio
-from viam.services.vision import Vision
+
+from viam.errors import DuplicateResourceError
 from viam.module.module import Module
 from viam.resource.registry import Registry, ResourceCreatorRegistration
-from viam.errors import DuplicateResourceError
+from viam.services.vision import Vision
+
 try:
     from src.keras_detector import KerasDetector
 except ModuleNotFoundError:
@@ -18,17 +20,15 @@ async def main():
     Registry.register_resource_creator(
         Vision.API,
         KerasDetector.MODEL,
-        ResourceCreatorRegistration(
-            KerasDetector.new, KerasDetector.validate_config
-        ),
+        ResourceCreatorRegistration(KerasDetector.new, KerasDetector.validate_config),
     )
     module = Module.from_args()
     module.add_model_from_registry(Vision.API, KerasDetector.MODEL)
     await module.start()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         asyncio.run(main())
     except DuplicateResourceError:
         asyncio.run(Module.run_from_registry())
-    
