@@ -19,13 +19,10 @@ from viam.services.vision import Vision, CaptureAllResult
 from viam.utils import ValueTypes
 
 
-
 class KerasDetector(Vision, EasyResource):
     # To enable debug-level logging, either run viam-server with the --debug option,
     # or configure your resource/machine to display debug logs.
-    MODEL: ClassVar[Model] = Model(
-        ModelFamily("viam", "vision"), "keras-detector"
-    )
+    MODEL: ClassVar[Model] = Model(ModelFamily("viam", "vision"), "keras-detector")
 
     @classmethod
     def new(
@@ -42,7 +39,6 @@ class KerasDetector(Vision, EasyResource):
             Self: The resource
         """
         return super().new(config, dependencies)
-
 
     @classmethod
     def validate_config(
@@ -74,7 +70,6 @@ class KerasDetector(Vision, EasyResource):
 
         return [camera_name], []
 
-
     def reconfigure(
         self, config: ComponentConfig, dependencies: Mapping[ResourceName, ResourceBase]
     ):
@@ -95,7 +90,6 @@ class KerasDetector(Vision, EasyResource):
 
         return super().reconfigure(config, dependencies)
 
-
     async def capture_all_from_camera(
         self,
         camera_name: str,
@@ -105,13 +99,15 @@ class KerasDetector(Vision, EasyResource):
         return_object_point_clouds: bool = False,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> CaptureAllResult:
-        
+
         out = CaptureAllResult()
 
         if camera_name not in [self.camera_name, ""]:
-            raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
+            raise ValueError(
+                f"Camera {camera_name} is not the configured camera {self.camera_name}"
+            )
         imgs, _ = await self.camera.get_images()
         if imgs is None or len(imgs) == 0:
             raise ValueError("No images returned by get_images")
@@ -120,39 +116,41 @@ class KerasDetector(Vision, EasyResource):
         if return_image:
             out.image = img
         if return_detections:
-            out.detections = await self.get_detections(img, extra=extra, timeout=timeout)
+            out.detections = await self.get_detections(
+                img, extra=extra, timeout=timeout
+            )
         # No classifications
         # No object point clouds
         return out
-        
- 
+
     async def get_detections_from_camera(
         self,
         camera_name: str,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> List[Detection]:
-        
+
         if camera_name != self.camera_name:
-            raise ValueError(f"Camera {camera_name} is not the configured camera {self.camera_name}")
-        
+            raise ValueError(
+                f"Camera {camera_name} is not the configured camera {self.camera_name}"
+            )
+
         viam_imgs, _ = await self.camera.get_images()
         if viam_imgs is None or len(viam_imgs) == 0:
             raise ValueError("No images returned by get_images")
         viam_img = viam_imgs[0]
 
         return self.get_detections(viam_img, extra=extra, timeout=timeout)
-        
 
     async def get_detections(
         self,
         image: ViamImage,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> List[Detection]:
-        
+
         pil_img = viam_to_pil_image(image)
         img = self.prep_image(pil_img)
 
@@ -162,20 +160,21 @@ class KerasDetector(Vision, EasyResource):
 
         for o in out:
             if len(o) < 4:
-                self.logger.warning("this doesn't seem like a valid detection, skipping")
+                self.logger.warning(
+                    "this doesn't seem like a valid detection, skipping"
+                )
                 continue
             det = Detection(
-                x_min=min(round(o[0]), round(o[2])),  
-                y_min=min(round(o[1]), round(o[3])),  
-                x_max=max(round(o[0]), round(o[2])),  
-                y_max=max(round(o[1]), round(o[3])),  
+                x_min=min(round(o[0]), round(o[2])),
+                y_min=min(round(o[1]), round(o[3])),
+                x_max=max(round(o[0]), round(o[2])),
+                y_max=max(round(o[1]), round(o[3])),
                 class_name="object",
-                confidence=0.5
+                confidence=0.5,
             )
             out_dets.append(det)
-        
-        return out_dets
 
+        return out_dets
 
     async def get_classifications_from_camera(
         self,
@@ -183,11 +182,10 @@ class KerasDetector(Vision, EasyResource):
         count: int,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> List[Classification]:
         self.logger.error("`get_classifications_from_camera` is not implemented")
         raise NotImplementedError()
-
 
     async def get_classifications(
         self,
@@ -195,52 +193,48 @@ class KerasDetector(Vision, EasyResource):
         count: int,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> List[Classification]:
         self.logger.error("`get_classifications` is not implemented")
         raise NotImplementedError()
-
 
     async def get_object_point_clouds(
         self,
         camera_name: str,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> List[PointCloudObject]:
         self.logger.error("`get_object_point_clouds` is not implemented")
         raise NotImplementedError()
-
 
     async def get_properties(
         self,
         *,
         extra: Optional[Mapping[str, ValueTypes]] = None,
-        timeout: Optional[float] = None
+        timeout: Optional[float] = None,
     ) -> Vision.Properties:
         out = Vision.Properties(
             detections_supported=True,
             classifications_supported=False,
-            object_point_clouds_supported=False
+            object_point_clouds_supported=False,
         )
         return out
-
 
     async def do_command(
         self,
         command: Mapping[str, ValueTypes],
         *,
         timeout: Optional[float] = None,
-        **kwargs
+        **kwargs,
     ) -> Mapping[str, ValueTypes]:
         self.logger.error("`do_command` is not implemented")
         raise NotImplementedError()
-    
 
     # prep_image returns the image as a numpy with the batch dimension in front.
     def prep_image(self, input_image, target_size=(320, 180, 3)):
         image = keras.utils.img_to_array(input_image)
         image = np.resize(image, target_size)
         image = tf.image.convert_image_dtype(image, dtype=tf.float32)
-        image = tf.expand_dims(image, axis=0)  
+        image = tf.expand_dims(image, axis=0)
         return image
